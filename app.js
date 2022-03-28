@@ -34,10 +34,8 @@ app.use(express.urlencoded({extended:true}));
 //parse application/json
 app.use(express.json());
 
-//Router
-app.get("/", (req,res) => {
-    res.render("home");
-})
+const router = require("./server/routes/user");
+app.use("/", router);
 
 // plug on server
 app.listen(port, () => console.log(`listening on port ${port}`));
