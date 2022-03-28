@@ -46,12 +46,12 @@ exports.find = (req,res) => {
 }
 
 //Creating a new user
-exports.addUser = (req,res) => {
+exports.add = (req,res) => {
     res.render("addUser");
 }
 
 //Insert a new user on database
-exports.insertUser = (req,res) => {
+exports.insert = (req,res) => {
     const  {first_name, last_name, email, phone, comments} = req.body;
 
     pool.getConnection((err,connection) => {
@@ -70,3 +70,45 @@ exports.insertUser = (req,res) => {
     })
 }
 
+// Edit user
+exports.edit = (req,res) => {
+    pool.getConnection((err, connection) => {
+        connection.release();
+
+        connection.query("SELECT * FROM user WHERE id = ?", [req.params.id], (err,user) => {
+            if(!err) {
+                res.render("editUser", {user});
+            } else console.log(err);
+
+            console.log("the user that will update is ", user);
+        })
+    })
+}
+
+// update user
+// Update User
+exports.update = (req, res) => {
+    pool.getConnection((err, connection) => {
+        const { first_name, last_name, email, phone, comments } = req.body;
+        // User the connection
+        connection.query('UPDATE user SET first_name = ?, last_name = ?, email = ?, phone = ?, comments = ? WHERE id = ?', [first_name, last_name, email, phone, comments, req.params.id], (err, user) => {
+      
+          if (!err) {
+            // User the connection
+            connection.query('SELECT * FROM user WHERE id = ?', [req.params.id], (err, user) => {
+              // When done with the connection, release it
+              
+              if (!err) {
+                res.render('editUser', { user, alert: `${first_name} has been updated.` });
+              } else {
+                console.log(err);
+              }
+              console.log('The data from user table: \n', user);
+            });
+          } else {
+            console.log(err);
+          }
+          console.log('The data from user table: \n', user);
+        });
+    })
+  }
