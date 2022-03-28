@@ -27,6 +27,7 @@ exports.view = (req,res) =>{
     })   
 }
 
+// Finding  a user
 exports.find = (req,res) => {
     pool.getConnection((err, connection) => {
         
@@ -43,3 +44,29 @@ exports.find = (req,res) => {
         })
     })
 }
+
+//Creating a new user
+exports.addUser = (req,res) => {
+    res.render("addUser");
+}
+
+//Insert a new user on database
+exports.insertUser = (req,res) => {
+    const  {first_name, last_name, email, phone, comments} = req.body;
+
+    pool.getConnection((err,connection) => {
+        if(err) throw err;
+        connection.query("INSERT INTO user SET first_name = ?, last_name = ?, email = ?, comments = ?, phone = ?", [first_name, last_name, email, comments, phone], (err, user) => {
+            connection.release();
+
+            if(!err) {
+                res.render("addUser", {alert:"User added successfully"});
+            } else {
+                console.log(err);
+            }
+
+            console.log("The new user has this informations: \n", user);
+        })
+    })
+}
+
