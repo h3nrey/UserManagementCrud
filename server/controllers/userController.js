@@ -17,7 +17,8 @@ exports.view = (req,res) =>{
         connection.query("SELECT * FROM user", (err, data) => {
             connection.release();
             if(!err) {
-                res.render("home", {data});
+                let removed = req.query.removed;
+                res.render("home", {data, alert: removed});
             } else {
                 res.render("home", {data:null});
             }
@@ -45,9 +46,24 @@ exports.find = (req,res) => {
     })
 }
 
+// View user detailed information
+exports.viewdetailed = (req,res) => {
+    pool.getConnection((err, connection) => {
+        connection.query('SELECT * FROM user WHERE id = ?', [req.params.id], (err, user) => {
+            if (!err) {
+              res.render('viewUser', { user});
+            } else {
+              console.log(err);
+            }
+            console.log('The data from user table: \n');
+        });
+    })
+}
+
 //Creating a new user
 exports.add = (req,res) => {
     res.render("addUser");
+    console.log("Macacos me mordam");
 }
 
 //Insert a new user on database
@@ -85,7 +101,6 @@ exports.edit = (req,res) => {
     })
 }
 
-// update user
 // Update User
 exports.update = (req, res) => {
     pool.getConnection((err, connection) => {
@@ -111,4 +126,25 @@ exports.update = (req, res) => {
           console.log('The data from user table: \n', user);
         });
     })
-  }
+}
+
+//Deleting a existing user
+exports.delete = (req, res) => {
+    pool.getConnection((err, connection) => {
+        if(err) throw err;
+
+        connection.query('DELETE FROM user WHERE id = ?', [req.params.id], (err, user) => {
+            connection.release();
+      
+            if(!err) {
+                let removedUser = encodeURIComponent(`user sucessfully removed`);
+                res.redirect('/?removed=' + removedUser);
+            } else {
+                console.log(err);
+            }
+            
+            console.log('The data from user table: \n', user);
+      
+        });
+    })
+}
